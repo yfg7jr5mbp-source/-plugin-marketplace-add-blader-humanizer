@@ -1,0 +1,475 @@
+<title>Рабочий справочник</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600&family=Unbounded:wght@600;700&display=swap">
+<style>
+/* Layout: phone-first single column; sticky search bar, category chips, card list, sheets for reading and editing */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --ink: #13212c;
+  --muted: #5b6b78;
+  --line: #d9e0e6;
+  --accent: #e2462c;
+  --accent-ink: #ffffff;
+  --accent-soft: #fde6e1;
+  --chip: #e2e8ed;
+  --shadow: 0 1px 2px rgba(19, 33, 44, .06), 0 6px 18px rgba(19, 33, 44, .06);
+  --display: "Unbounded", "Arial Black", system-ui, sans-serif;
+  --body: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d141a; --surface: #16212a; --ink: #e6ecf1; --muted: #93a3b0; --line: #26343f;
+    --accent: #ff6a4d; --accent-ink: #1a0b07; --accent-soft: #3a1f1a; --chip: #1f2c36;
+    --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d141a; --surface: #16212a; --ink: #e6ecf1; --muted: #93a3b0; --line: #26343f;
+  --accent: #ff6a4d; --accent-ink: #1a0b07; --accent-soft: #3a1f1a; --chip: #1f2c36;
+  --shadow: 0 1px 2px rgba(0,0,0,.3); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--body); font-size: 16px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.wrap { max-width: 720px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 14px 10px; }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.brand h1 { font-family: var(--display); font-weight: 700; font-size: 1.25rem; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.brand h1 span { color: var(--accent); }
+.count { color: var(--muted); font-size: .8rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.search { position: relative; margin-top: 12px; }
+.search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); pointer-events: none; }
+.search input { width: 100%; padding: 13px 44px 13px 42px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); font-size: 1rem; box-shadow: var(--shadow); }
+.search input::placeholder { color: var(--muted); }
+.search .clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; width: 36px; height: 36px; border-radius: 10px; color: var(--muted); font-size: 1.2rem; }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-block: 12px 2px; scrollbar-width: none; margin-inline: -4px; padding-inline: 4px; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: none; border: 0; background: var(--chip); padding: 7px 13px; border-radius: 999px; font-size: .88rem; font-weight: 500; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.chip .n { opacity: .6; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+main { padding-block: 6px 120px; display: grid; gap: 22px; }
+.section-label { font-size: .72rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+.list { display: grid; gap: 8px; }
+.card { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; text-align: left; width: 100%; border: 1px solid var(--line); background: var(--surface); border-radius: var(--r); padding: 13px 14px; }
+.card:active { transform: scale(.995); }
+.card .t { font-weight: 600; font-size: 1rem; min-width: 0; overflow-wrap: anywhere; }
+.card .pin { color: var(--accent); font-size: .9rem; }
+.card .snip { grid-column: 1 / -1; color: var(--muted); font-size: .88rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.card .meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.tag { font-size: .74rem; padding: 2px 8px; border-radius: 6px; background: var(--chip); color: var(--muted); }
+.tag.cat { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+mark { background: var(--accent-soft); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+.empty { text-align: center; padding: 40px 12px; color: var(--muted); }
+.empty h2 { font-family: var(--display); font-size: 1.05rem; color: var(--ink); margin: 0 0 6px; }
+.empty p { margin: 0 auto; max-width: 34ch; }
+
+.fab { position: fixed; right: calc(18px + env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 6; border: 0; background: var(--accent); color: var(--accent-ink); font-weight: 600; padding: 15px 20px; border-radius: 999px; box-shadow: 0 8px 24px rgba(226, 70, 44, .35); display: flex; align-items: center; gap: 8px; }
+.fab svg { width: 18px; height: 18px; }
+
+/* Sheets */
+.sheet { position: fixed; inset: 0; z-index: 20; background: var(--bg); overflow-y: auto; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.sheet-bar { position: sticky; top: 0; z-index: 2; background: var(--bg); border-bottom: 1px solid var(--line); }
+.sheet-bar .wrap { display: flex; align-items: center; gap: 8px; padding-block: 10px; }
+.sheet-bar .grow { flex: 1; }
+.btn { border: 1px solid var(--line); background: var(--surface); padding: 9px 14px; border-radius: 11px; font-weight: 500; font-size: .92rem; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.btn.ghost { background: none; border-color: transparent; }
+.btn.danger { color: var(--accent); }
+.btn:disabled { opacity: .5; }
+
+article.read { padding-block: 22px 60px; }
+article.read .cat-line { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+article.read h2 { font-family: var(--display); font-weight: 700; font-size: 1.45rem; line-height: 1.25; margin: 0 0 6px; text-wrap: balance; overflow-wrap: anywhere; }
+article.read .upd { color: var(--muted); font-size: .8rem; margin-bottom: 20px; }
+.body { max-width: 65ch; overflow-wrap: anywhere; }
+.body p { margin: 0 0 12px; }
+.body h3 { font-family: var(--display); font-size: 1rem; margin: 22px 0 8px; }
+.body ul, .body ol { margin: 0 0 14px; padding-left: 22px; }
+.body li { margin-bottom: 6px; }
+.body ol li::marker { color: var(--accent); font-weight: 700; }
+.body a { color: var(--accent); }
+.body .note { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 10px 12px; border-radius: 0 10px 10px 0; margin: 0 0 14px; }
+.body code { background: var(--chip); padding: 1px 6px; border-radius: 5px; font-size: .9em; }
+.copy-row { display: inline-flex; align-items: center; gap: 6px; }
+
+form.edit { display: grid; gap: 16px; padding-block: 20px 60px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label { font-size: .8rem; font-weight: 600; color: var(--muted); letter-spacing: .02em; }
+.field input, .field textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface); }
+.field textarea { min-height: 260px; resize: vertical; line-height: 1.5; }
+.hint { font-size: .8rem; color: var(--muted); }
+.hint code { background: var(--chip); padding: 0 5px; border-radius: 4px; }
+.check { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.confirm { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 10px; }
+.confirm .row { display: flex; gap: 8px; flex-wrap: wrap; }
+.err { color: var(--accent); font-size: .88rem; }
+
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: .9rem; max-width: calc(100% - 32px); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: up .18s ease-out; }
+  @keyframes up { from { transform: translateY(14px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Рабочий <span>справочник</span></h1>
+      <div class="count" id="count"></div>
+    </div>
+    <div class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Что ищем? Например: заморозка" autocomplete="off" enterkeyhint="search" aria-label="Поиск по справочнику">
+      <button class="clear" id="clear" type="button" aria-label="Очистить поиск" hidden>×</button>
+    </div>
+    <div class="chips" id="chips" role="toolbar" aria-label="Разделы"></div>
+  </div>
+</header>
+
+<main class="wrap" id="main">
+  <div class="empty" id="loading">
+    <h2>Загружаю статьи…</h2>
+    <p>Здесь появятся инструкции по рабочему функционалу. Добавить первую можно кнопкой «Добавить» внизу.</p>
+  </div>
+</main>
+
+<button class="fab" id="fab" type="button" hidden>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  Добавить
+</button>
+
+<div class="sheet" id="viewSheet" hidden></div>
+<div class="sheet" id="editSheet" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const norm = s => String(s ?? "").toLowerCase().replace(/ё/g, "е");
+  const ALL = "Все", FAV = "★ Важное";
+
+  let db = null, canWrite = false;
+  let articles = [];        // [{id, title, category, body, tags[], pinned, updatedAt}]
+  let loaded = false;
+  let cat = ALL, query = "";
+  let openId = null;
+
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+  };
+  let recent = store.get("recent", []);
+
+  function toast(msg) {
+    const t = $("#toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 2200);
+  }
+
+  // ---------- Text rendering: a tiny markdown subset ----------
+  function inline(s) {
+    let h = esc(s);
+    h = h.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    h = h.replace(/`([^`]+)`/g, "<code>$1</code>");
+    h = h.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    return h;
+  }
+  function renderBody(text) {
+    const lines = String(text || "").split(/\r?\n/);
+    let out = "", list = null, para = [];
+    const flushPara = () => { if (para.length) { out += "<p>" + para.map(inline).join("<br>") + "</p>"; para = []; } };
+    const flushList = () => { if (list) { out += `<${list.type}>` + list.items.map(i => "<li>" + inline(i) + "</li>").join("") + `</${list.type}>`; list = null; } };
+    for (const raw of lines) {
+      const l = raw.trim();
+      let m;
+      if (!l) { flushPara(); flushList(); continue; }
+      if ((m = l.match(/^#{1,3}\s+(.*)/))) { flushPara(); flushList(); out += "<h3>" + inline(m[1]) + "</h3>"; continue; }
+      if ((m = l.match(/^!\s*(.*)/))) { flushPara(); flushList(); out += '<div class="note">' + inline(m[1]) + "</div>"; continue; }
+      if ((m = l.match(/^[-•*]\s+(.*)/))) { flushPara(); if (!list || list.type !== "ul") { flushList(); list = { type: "ul", items: [] }; } list.items.push(m[1]); continue; }
+      if ((m = l.match(/^\d+[.)]\s+(.*)/))) { flushPara(); if (!list || list.type !== "ol") { flushList(); list = { type: "ol", items: [] }; } list.items.push(m[1]); continue; }
+      flushList(); para.push(l);
+    }
+    flushPara(); flushList();
+    return out;
+  }
+  function plain(text) { return String(text || "").replace(/^[#!\-•*\d.)\s]+/gm, "").replace(/\*\*|`/g, "").replace(/\s+/g, " ").trim(); }
+
+  function highlight(text, terms) {
+    let h = esc(text);
+    for (const t of terms) {
+      if (t.length < 2) continue;
+      const re = new RegExp("(" + t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/е/g, "[её]") + ")", "gi");
+      h = h.replace(re, "<mark>$1</mark>");
+    }
+    return h;
+  }
+
+  // ---------- Search ----------
+  function score(a, terms) {
+    const title = norm(a.title), tags = norm((a.tags || []).join(" ")), c = norm(a.category), body = norm(a.body);
+    let s = 0;
+    for (const t of terms) {
+      let hit = 0;
+      if (title.includes(t)) hit += title.startsWith(t) ? 12 : 8;
+      if (tags.includes(t)) hit += 6;
+      if (c.includes(t)) hit += 4;
+      if (body.includes(t)) hit += 2;
+      if (!hit) return 0;
+      s += hit;
+    }
+    return s + (a.pinned ? 1 : 0);
+  }
+  function snippet(a, terms) {
+    const p = plain(a.body);
+    if (!terms.length) return p.slice(0, 160);
+    const np = norm(p);
+    let i = -1;
+    for (const t of terms) { i = np.indexOf(t); if (i >= 0) break; }
+    if (i < 0) return p.slice(0, 160);
+    const start = Math.max(0, i - 40);
+    return (start ? "…" : "") + p.slice(start, start + 160);
+  }
+
+  // ---------- Rendering ----------
+  function categories() {
+    const m = new Map();
+    for (const a of articles) { const c = a.category || "Без раздела"; m.set(c, (m.get(c) || 0) + 1); }
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], "ru"));
+  }
+
+  function renderChips() {
+    const cats = categories();
+    const pinnedN = articles.filter(a => a.pinned).length;
+    const items = [[ALL, articles.length]];
+    if (pinnedN) items.push([FAV, pinnedN]);
+    items.push(...cats);
+    if (!items.some(i => i[0] === cat)) cat = ALL;
+    $("#chips").innerHTML = items.map(([c, n]) =>
+      `<button class="chip" type="button" data-cat="${esc(c)}" aria-pressed="${c === cat}">${esc(c)}<span class="n">${n}</span></button>`).join("");
+  }
+
+  function cardHTML(a, terms) {
+    return `<button class="card" type="button" data-id="${esc(a.id)}">
+      <span class="t">${highlight(a.title || "Без названия", terms)}</span>
+      ${a.pinned ? '<span class="pin" aria-label="Важное">★</span>' : "<span></span>"}
+      <span class="snip">${highlight(snippet(a, terms), terms)}</span>
+      <span class="meta"><span class="tag cat">${esc(a.category || "Без раздела")}</span>${(a.tags || []).slice(0, 4).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</span>
+    </button>`;
+  }
+
+  function render() {
+    renderChips();
+    $("#count").textContent = loaded ? `${articles.length} ${plural(articles.length, ["статья", "статьи", "статей"])}` : "";
+    const main = $("#main");
+    if (!loaded) return;
+
+    if (!db) {
+      main.innerHTML = `<div class="empty"><h2>Справочник недоступен</h2><p>Хранилище статей не открылось в этом окне. Откройте ссылку на справочник, войдя в свой аккаунт Claude.</p></div>`;
+      return;
+    }
+    if (!articles.length) {
+      main.innerHTML = `<div class="empty"><h2>Пока пусто</h2><p>${canWrite ? "Нажмите «Добавить» и опишите первую функцию: что это, где найти и как сделать по шагам." : "Статей ещё нет."}</p></div>`;
+      return;
+    }
+
+    const terms = norm(query).split(/\s+/).filter(Boolean);
+    let pool = articles;
+    if (cat === FAV) pool = pool.filter(a => a.pinned);
+    else if (cat !== ALL) pool = pool.filter(a => (a.category || "Без раздела") === cat);
+
+    let html = "";
+    if (terms.length) {
+      const found = pool.map(a => [a, score(a, terms)]).filter(x => x[1] > 0).sort((x, y) => y[1] - x[1]).map(x => x[0]);
+      html = found.length
+        ? `<section><p class="section-label">Найдено: ${found.length}</p><div class="list">${found.map(a => cardHTML(a, terms)).join("")}</div></section>`
+        : `<div class="empty"><h2>Ничего не нашлось</h2><p>Попробуйте другое слово или короче, например начало слова: «замор» вместо «заморозка абонемента».</p></div>`;
+    } else {
+      if (cat === ALL) {
+        const rec = recent.map(id => articles.find(a => a.id === id)).filter(Boolean).slice(0, 4);
+        if (rec.length) html += `<section><p class="section-label">Недавно открывали</p><div class="list">${rec.map(a => cardHTML(a, [])).join("")}</div></section>`;
+        const groups = new Map();
+        for (const a of [...pool].sort(sortFn)) { const c = a.category || "Без раздела"; if (!groups.has(c)) groups.set(c, []); groups.get(c).push(a); }
+        for (const [c, list] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0], "ru"))) {
+          html += `<section><p class="section-label">${esc(c)}</p><div class="list">${list.map(a => cardHTML(a, [])).join("")}</div></section>`;
+        }
+      } else {
+        html = `<section><div class="list">${[...pool].sort(sortFn).map(a => cardHTML(a, [])).join("")}</div></section>`;
+      }
+    }
+    main.innerHTML = html;
+  }
+  const sortFn = (a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0) || String(a.title).localeCompare(String(b.title), "ru");
+  function plural(n, f) { const m10 = n % 10, m100 = n % 100; return f[m10 === 1 && m100 !== 11 ? 0 : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? 1 : 2]; }
+  function fmtDate(iso) { try { return new Date(iso).toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" }); } catch { return ""; } }
+
+  // ---------- Reading view ----------
+  function openArticle(id) {
+    const a = articles.find(x => x.id === id);
+    if (!a) return closeSheet("#viewSheet");
+    openId = id;
+    recent = [id, ...recent.filter(x => x !== id)].slice(0, 8);
+    store.set("recent", recent);
+    const s = $("#viewSheet");
+    s.innerHTML = `
+      <div class="sheet-bar"><div class="wrap">
+        <button class="btn ghost" type="button" data-act="back">← Назад</button>
+        <span class="grow"></span>
+        <button class="btn" type="button" data-act="copy">Копировать</button>
+        ${canWrite ? '<button class="btn" type="button" data-act="edit">Изменить</button>' : ""}
+      </div></div>
+      <article class="read wrap">
+        <div class="cat-line"><span class="tag cat">${esc(a.category || "Без раздела")}</span>${a.pinned ? '<span class="tag cat">★ Важное</span>' : ""}${(a.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+        <h2>${esc(a.title)}</h2>
+        ${a.updatedAt ? `<div class="upd">Обновлено ${esc(fmtDate(a.updatedAt))}</div>` : ""}
+        <div class="body">${renderBody(a.body)}</div>
+      </article>`;
+    s.hidden = false; s.scrollTop = 0;
+    document.body.style.overflow = "hidden";
+  }
+  function closeSheet(sel) {
+    $(sel).hidden = true;
+    if (sel === "#viewSheet") openId = null;
+    if ($("#viewSheet").hidden && $("#editSheet").hidden) document.body.style.overflow = "";
+  }
+
+  // ---------- Editor ----------
+  function openEditor(id) {
+    const a = id ? articles.find(x => x.id === id) : null;
+    const cats = categories().map(c => c[0]);
+    const s = $("#editSheet");
+    s.innerHTML = `
+      <div class="sheet-bar"><div class="wrap">
+        <button class="btn ghost" type="button" data-act="cancel">Отмена</button>
+        <span class="grow"></span>
+        <button class="btn primary" type="submit" form="editForm" id="saveBtn">Сохранить</button>
+      </div></div>
+      <form class="edit wrap" id="editForm" novalidate>
+        <div class="field"><label for="f-title">Название</label>
+          <input id="f-title" required maxlength="140" placeholder="Например: Как заморозить абонемент" value="${esc(a?.title)}"></div>
+        <div class="field"><label for="f-cat">Раздел</label>
+          <input id="f-cat" list="catList" maxlength="60" placeholder="Например: Абонементы" value="${esc(a?.category)}">
+          <datalist id="catList">${cats.map(c => `<option value="${esc(c)}"></option>`).join("")}</datalist></div>
+        <div class="field"><label for="f-tags">Ключевые слова через запятую</label>
+          <input id="f-tags" maxlength="200" placeholder="заморозка, пауза, отпуск" value="${esc((a?.tags || []).join(", "))}">
+          <span class="hint">Слова, по которым вы будете искать. Синонимы тоже сюда.</span></div>
+        <div class="field"><label for="f-body">Инструкция</label>
+          <textarea id="f-body" placeholder="Где находится, что нажать, на что обратить внимание">${esc(a?.body)}</textarea>
+          <span class="hint"><code>1.</code> шаги по порядку · <code>-</code> список · <code>## </code> подзаголовок · <code>! </code> важная заметка · <code>**жирный**</code></span></div>
+        <label class="check"><input type="checkbox" id="f-pin" ${a?.pinned ? "checked" : ""}> Важное, показывать первым</label>
+        <div class="err" id="f-err" hidden></div>
+        ${a ? `<div><button class="btn danger" type="button" data-act="askdel">Удалить статью</button></div>
+          <div class="confirm" id="delBox" hidden><div>Удалить «${esc(a.title)}»? Вернуть не получится.</div>
+          <div class="row"><button class="btn primary" type="button" data-act="del">Удалить</button><button class="btn" type="button" data-act="nodel">Оставить</button></div></div>` : ""}
+      </form>`;
+    s.dataset.id = id || "";
+    s.hidden = false; s.scrollTop = 0;
+    document.body.style.overflow = "hidden";
+    if (!a) setTimeout(() => $("#f-title")?.focus(), 50);
+  }
+
+  async function save(e) {
+    e.preventDefault();
+    const s = $("#editSheet"), id = s.dataset.id;
+    const title = $("#f-title").value.trim();
+    const err = $("#f-err");
+    if (!title) { err.textContent = "Впишите название, чтобы статью можно было найти."; err.hidden = false; $("#f-title").focus(); return; }
+    const data = {
+      title,
+      category: $("#f-cat").value.trim() || "Без раздела",
+      tags: $("#f-tags").value.split(",").map(t => t.trim()).filter(Boolean).slice(0, 20),
+      body: $("#f-body").value,
+      pinned: $("#f-pin").checked,
+      updatedAt: new Date().toISOString()
+    };
+    const btn = $("#saveBtn"); btn.disabled = true;
+    try {
+      const ref = id ? db.collection("articles").doc(id) : db.collection("articles").doc();
+      await ref.set(data);
+      closeSheet("#editSheet");
+      toast(id ? "Изменения сохранены" : "Статья добавлена");
+      if (id && openId === id) setTimeout(() => openArticle(id), 0);
+    } catch (ex) {
+      btn.disabled = false;
+      err.textContent = ex?.code === "quota_exceeded" ? "Место в справочнике закончилось. Удалите ненужные статьи и попробуйте снова."
+        : ex?.code === "invalid_argument" ? "Сохранить не получилось: у вас нет прав на изменение или статья слишком большая."
+        : "Сохранить не получилось из-за связи. Проверьте интернет и нажмите «Сохранить» ещё раз.";
+      err.hidden = false;
+    }
+  }
+
+  async function remove() {
+    const id = $("#editSheet").dataset.id;
+    try {
+      await db.collection("articles").doc(id).delete();
+      closeSheet("#editSheet"); closeSheet("#viewSheet");
+      toast("Статья удалена");
+    } catch { const err = $("#f-err"); err.textContent = "Удалить не получилось. Попробуйте ещё раз."; err.hidden = false; }
+  }
+
+  // ---------- Events ----------
+  const q = $("#q");
+  q.addEventListener("input", () => { query = q.value; $("#clear").hidden = !query; render(); });
+  $("#clear").addEventListener("click", () => { q.value = ""; query = ""; $("#clear").hidden = true; render(); q.focus(); });
+  $("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; cat = b.dataset.cat; render(); window.scrollTo({ top: 0 }); });
+  $("#main").addEventListener("click", e => { const c = e.target.closest(".card"); if (c) openArticle(c.dataset.id); });
+  $("#fab").addEventListener("click", () => openEditor(null));
+  $("#viewSheet").addEventListener("click", async e => {
+    const act = e.target.closest("[data-act]")?.dataset.act;
+    if (act === "back") closeSheet("#viewSheet");
+    if (act === "edit") openEditor(openId);
+    if (act === "copy") {
+      const a = articles.find(x => x.id === openId); if (!a) return;
+      const text = a.title + "\n\n" + a.body;
+      try { await navigator.clipboard.writeText(text); toast("Текст скопирован"); }
+      catch { const r = document.createRange(); r.selectNodeContents($(".read")); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Текст выделен, скопируйте его"); }
+    }
+  });
+  $("#editSheet").addEventListener("click", e => {
+    const act = e.target.closest("[data-act]")?.dataset.act;
+    if (act === "cancel") closeSheet("#editSheet");
+    if (act === "askdel") $("#delBox").hidden = false;
+    if (act === "nodel") $("#delBox").hidden = true;
+    if (act === "del") remove();
+  });
+  $("#editSheet").addEventListener("submit", save);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") { if (!$("#editSheet").hidden) closeSheet("#editSheet"); else if (!$("#viewSheet").hidden) closeSheet("#viewSheet"); }
+    if (e.key === "/" && document.activeElement !== q && !/INPUT|TEXTAREA/.test(document.activeElement?.tagName)) { e.preventDefault(); q.focus(); }
+  });
+
+  // ---------- Data ----------
+  (async () => {
+    try { db = await window.claude?.use("db"); } catch { db = null; }
+    if (!db) { loaded = true; render(); return; }
+    try {
+      const user = await window.claude.use("user");
+      const c = user ? await user.can("data.write") : null;
+      canWrite = c !== false;
+    } catch { canWrite = true; }
+    $("#fab").hidden = !canWrite;
+    db.collection("articles").onSnapshot(snap => {
+      articles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      loaded = true;
+      render();
+      if (openId && $("#editSheet").hidden) openArticle(openId);
+    }, () => { loaded = true; render(); });
+  })();
+})();
+</script>
